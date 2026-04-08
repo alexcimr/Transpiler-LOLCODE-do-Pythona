@@ -1,8 +1,8 @@
 # Projekt: Transpiler LOLCODE do Pythona
 
 ### Dane studentów i kontakt
-Alex Cimr - alexcimr@student.agh.edu.pl \
-Piotr Ciećkiewicz - pcieckiewicz@student.agh.edu.pl
+* Alex Cimr - alexcimr@student.agh.edu.pl
+* Piotr Ciećkiewicz - pcieckiewicz@student.agh.edu.pl
 
 ---
 
