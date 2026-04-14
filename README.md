@@ -1,12 +1,12 @@
 # Projekt: Transpiler LOLCODE do Pythona
 
-### Dane studentów i kontakt
+## Dane studentów i kontakt
 * Alex Cimr - alexcimr@student.agh.edu.pl
 * Piotr Ciećkiewicz - pcieckiewicz@student.agh.edu.pl
 
 ---
 
-### Założenia projektu
+## Założenia projektu
 
 **Krótki opis:**
 Głównym założeniem projektu jest stworzenie narzędzia do automatycznej translacji kodu źródłowego z języka LOLCODE na język Python. Program ma za zadanie interpretować składnię specyfikacji LOLCODE i przekładać ją na konstrukcje logiczne w środowisku Python.
@@ -26,7 +26,93 @@ Wynikiem pracy narzędzia jest konwerter LOLCODE do Pythona. Aplikacja przyjmuje
 **Sposób realizacji skanera oraz parsera:**
 Analiza leksykalna (skaner) i składniowa (parser) zostanie wykonana przy użyciu biblioteki PLY, wykorzystując odpowiednio jej moduły Lex oraz Yacc.
 
+## Opis tokenów
 
+Skaner został zaimplementowany przy użyciu modułu `ply.lex`. Zgodnie z konwencją biblioteki, nazwy tokenów poprzedzone są przedrostkiem `t_`. Poniżej przedstawiono kompletną listę tokenów, ich wyrażenia regularne oraz ich znaczenie w specyfikacji LOLCODE.
+
+#### Struktura programu i separatory
+| Nazwa Tokena | Wyrażenie | Opis |
+| :--- | :--- | :--- |
+| `t_HAI` | `HAI` | Początek programu |
+| `t_KTHXBYE` | `KTHXBYE` | Koniec programu |
+| `t_NEWLINE` | `\n+` | Separator instrukcji |
+
+#### Zmienne i przypisania
+| Nazwa Tokena | Wyrażenie | Opis |
+| :--- | :--- | :--- |
+| `t_VAR_DEC` | `I HAS A` | Deklaracja nowej zmiennej |
+| `t_ITZ` | `ITZ` | Inicjalizacja zmiennej (używane z `I HAS A`) |
+| `t_R` | `R` | Operator przypisania nowej wartości |
+
+#### Wejście / Wyjście
+| Nazwa Tokena | Wyrażenie | Opis |
+| :--- | :--- | :--- |
+| `t_VISIBLE` | `VISIBLE` | Instrukcja wyjścia (print) |
+| `t_GIMMEH` | `GIMMEH` | Instrukcja wejścia (input) |
+
+#### Typy danych i literały
+| Nazwa Tokena | Wyrażenie | Opis |
+| :--- | :--- | :--- |
+| `t_NUMBR` | `[0-9]+` | Liczba całkowita (Integer) |
+| `t_NUMBAR` | `[0-9]+\.[0-9]+` | Liczba zmiennoprzecinkowa (Float) |
+| `t_YARN` | `"[^"]*"` | Ciąg znaków (String) |
+| `t_TROOSH_WIN`| `WIN` | Wartość logiczna Prawda (True) |
+| `t_TROOSH_FAIL`| `FAIL` | Wartość logiczna Fałsz (False) |
+| `t_NOOB` | `NOOB` | Wartość pusta (None/Null) |
+| `t_ID` | `[a-zA-Z][a-zA-Z0-9_]*` | Identyfikator zmiennej lub etykiety |
+
+#### Operatory arytmetyczne
+| Nazwa Tokena | Wyrażenie | Opis |
+| :--- | :--- | :--- |
+| `t_SUM` | `SUM OF` | Dodawanie (+) |
+| `t_DIFF` | `DIFF OF` | Odejmowanie (-) |
+| `t_PRODUKT` | `PRODUKT OF` | Mnożenie (*) |
+| `t_QUOSHUNT` | `QUOSHUNT OF` | Dzielenie (/) |
+| `t_MOD` | `MOD OF` | Reszta z dzielenia (Modulo) |
+| `t_BIGGR` | `BIGGR OF` | Zwraca większą z dwóch liczb (Max) |
+| `t_SMALLR` | `SMALLR OF` | Zwraca mniejszą z dwóch liczb (Min) |
+| `t_AN` | `AN` | Separator argumentów (używany m.in. w matematyce) |
+
+#### Operatory logiczne i porównania
+| Nazwa Tokena | Wyrażenie | Opis |
+| :--- | :--- | :--- |
+| `t_BOTH_SAEM` | `BOTH SAEM` | Operator równości (==) |
+| `t_DIFFRINT` | `DIFFRINT` | Operator nierówności (!=) |
+| `t_BOTH_OF` | `BOTH OF` | Logiczne AND |
+| `t_EITHER_OF` | `EITHER OF` | Logiczne OR |
+| `t_WON_OF` | `WON OF` | Logiczne XOR |
+| `t_NOT` | `NOT` | Logiczna negacja (NOT) |
+| `t_ALL_OF` | `ALL OF` | Logiczne AND dla nieskończ. liczby arg. |
+| `t_ANY_OF` | `ANY OF` | Logiczne OR dla nieskończ. liczby arg. |
+| `t_MKAY` | `MKAY` | Zamknięcie wyrażenia o zmiennej liczbie arg. |
+
+#### Instrukcje warunkowe (If / Else)
+| Nazwa Tokena | Wyrażenie | Opis |
+| :--- | :--- | :--- |
+| `t_IF` | `O RLY\?` | Otwarcie bloku instrukcji warunkowej |
+| `t_THEN` | `YA RLY` | Blok wykonywany gdy warunek jest prawdziwy |
+| `t_ELSE_IF` | `MEBBE` | Blok "Else If" |
+| `t_ELSE` | `NO WAI` | Blok wykonywany gdy warunek jest fałszywy |
+| `t_END_BLOCK` | `OIC` | Zamknięcie bloku warunkowego |
+
+#### Pętle
+| Nazwa Tokena | Wyrażenie | Opis |
+| :--- | :--- | :--- |
+| `t_LOOP_START`| `IM IN YR` | Otwarcie pętli z etykietą |
+| `t_UPPIN` | `UPPIN` | Inkrementacja w pętli |
+| `t_NERFIN` | `NERFIN` | Dekrementacja w pętli |
+| `t_YR` | `YR` | Słowo łączące przy deklaracji zmiennej w pętli |
+| `t_TIL` | `TIL` | Warunek końcowy "dopóki nie" (Until) |
+| `t_WILE` | `WILE` | Warunek trwania "dopóki" (While) |
+| `t_LOOP_END` | `IM OUTTA YR` | Zamknięcie pętli z etykietą |
+
+#### Operacje na tekstach i komentarze
+| Nazwa Tokena | Wyrażenie | Opis |
+| :--- | :--- | :--- |
+| `t_SMOOSH` | `SMOOSH` | Konkatenacja ciągów znaków |
+| `t_COMMENT` | `BTW .*` | Komentarz jednolinijkowy (ignorowany) |
+| `t_MULTI_START`| `OBTW` | Rozpoczęcie komentarza wielolinijkowego |
+| `t_MULTI_END` | `TLDR` | Zakończenie komentarza wielolinijkowego |
 
 ## Gramatyka Języka (Notacja Yacc)
 Poniżej znajduje się formalna specyfikacja składni, która posłuży do wygenerowania parsera.
