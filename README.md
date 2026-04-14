@@ -28,7 +28,7 @@ Analiza leksykalna (skaner) i składniowa (parser) zostanie wykonana przy użyci
 
 
 
-**Gramatyka Języka (Notacja Yacc)**
+## Gramatyka Języka (Notacja Yacc)
 Poniżej znajduje się formalna specyfikacja składni, która posłuży do wygenerowania parsera.
 
 ```ebnf
