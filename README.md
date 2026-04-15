@@ -118,10 +118,8 @@ Skaner został zaimplementowany przy użyciu modułu `ply.lex`. Zgodnie z konwen
 Poniżej znajduje się formalna specyfikacja składni, która posłuży do wygenerowania parsera.
 
 ```ebnf
-program : HAI opt_version separator statements KTHXBYE
-
-opt_version : FLOAT
-            | empty
+program : HAI separator statements KTHXBYE
+        | HAI separator KTHXBYE
 
 statements : statements statement
            | statement
@@ -135,78 +133,76 @@ statement : declaration separator
           | loop_block separator
 
 separator : NEWLINE
-          | COMMA
           | separator NEWLINE
-          | separator COMMA
 
-Zmienne i Przypisania:
+# Zmienne
+declaration : VAR_DEC ID
+            | VAR_DEC ID ITZ expression
 
-declaration : I HAS A IDENTIFIER
-            | I HAS A IDENTIFIER ITZ expression
+assignment : ID R expression
 
-assignment : IDENTIFIER R expression
+# Wejście / Wyjście
+print : VISIBLE arg_list
 
-Wejście / Wyjście:
+arg_list : expression
+         | arg_list expression
 
-print : VISIBLE print_args
+input : GIMMEH ID
 
-print_args : expression
-           | print_args expression
-
-input : GIMMEH IDENTIFIER
-
-Wyrażenia i Literały:
-
+# Wyrażenia
 expression : math_expr
            | bool_expr
            | comp_expr
-           | IDENTIFIER
+           | ID
            | literal
+           | SMOOSH arg_list
 
-literal : INTEGER 
-        | FLOAT  
-        | STRING 
-        | BOOLEAN
+literal : NUMBR
+        | NUMBAR
+        | YARN
+        | TROOSH_WIN
+        | TROOSH_FAIL
+        | NOOB
 
-Operacje Matematyczne:
+# Operacje Matematyczne
+math_expr : SUM expression AN expression
+          | DIFF expression AN expression
+          | PRODUKT expression AN expression
+          | QUOSHUNT expression AN expression
+          | MOD expression AN expression
+          | BIGGR expression AN expression
+          | SMALLR expression AN expression
 
-math_expr : SUM OF expression AN expression
-          | DIFF OF expression AN expression
-          | PRODUKT OF expression AN expression
-          | QUOSHUNT OF expression AN expression
-          | MOD OF expression AN expression
-          | BIGGR OF expression AN expression
-          | SMALLR OF expression AN expression
-
-Operacje Logiczne:
-
-bool_expr : BOTH OF expression AN expression
-          | EITHER OF expression AN expression
-          | WON OF expression AN expression
+# Operacje Logiczne
+bool_expr : BOTH_OF expression AN expression
+          | EITHER_OF expression AN expression
+          | WON_OF expression AN expression
           | NOT expression
+          | ALL_OF arg_list MKAY
+          | ANY_OF arg_list MKAY
 
-Operacje Porównania:
-
-comp_expr : BOTH SAEM expression AN expression
+# Porównania
+comp_expr : BOTH_SAEM expression AN expression
           | DIFFRINT expression AN expression
 
-Sterowanie Przepływem (IF/ELSE):
+# Sterowanie (IF/ELSE)
+if_block : IF separator THEN separator statements mebbe_blocks else_block END_BLOCK
 
-if_block : O_RLY separator YA_RLY separator statements OIC
-         | O_RLY separator YA_RLY separator statements NO_WAI separator statements OIC
+mebbe_blocks : mebbe_blocks ELSE_IF expression separator statements
+             | empty
 
-Pętle:
+else_block : ELSE separator statements
+           | empty
 
-loop_block : IM_IN_YR IDENTIFIER loop_op loop_cond separator statements IM_OUTTA_YR IDENTIFIER
+# Pętle
+loop_block : LOOP_START ID loop_op loop_cond separator statements LOOP_END ID
 
-loop_op : UPPIN YR IDENTIFIER
-        | NERFIN YR IDENTIFIER
+loop_op : UPPIN YR ID
+        | NERFIN YR ID
         | empty
 
 loop_cond : TIL expression
           | WILE expression
           | empty
-
-Espilon:
 
 empty :
