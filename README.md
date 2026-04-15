@@ -37,12 +37,14 @@ Skaner został zaimplementowany przy użyciu modułu `ply.lex`. Zgodnie z konwen
 | `t_KTHXBYE` | `KTHXBYE` | Koniec programu |
 | `t_NEWLINE` | `\n+` | Separator instrukcji |
 
-#### Zmienne i przypisania
+#### Zmienne, przypisania i listy
 | Nazwa Tokena | Wyrażenie | Opis |
 | :--- | :--- | :--- |
 | `t_VAR_DEC` | `I HAS A` | Deklaracja nowej zmiennej |
 | `t_ITZ` | `ITZ` | Inicjalizacja zmiennej (używane z `I HAS A`) |
 | `t_R` | `R` | Operator przypisania nowej wartości |
+| `t_BUKKIT` | `BUKKIT` | Deklaracja listy |
+| `t_AT` | `AT` | Operator indeksowania (dostęp do elementu) |
 
 #### Wejście / Wyjście
 | Nazwa Tokena | Wyrażenie | Opis |
@@ -139,12 +141,14 @@ separator : NEWLINE
           | separator NEWLINE
           ;
 
-/* Zmienne */
+/* Zmienne i Bukkit */
 declaration : VAR_DEC ID
             | VAR_DEC ID ITZ expression
+            | VAR_DEC ID ITZ BUKKIT
             ;
 
 assignment : ID R expression
+           | ID AT expression R expression
            ;
 
 /* Wejście / Wyjście */
