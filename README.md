@@ -120,9 +120,11 @@ Poniżej znajduje się formalna specyfikacja składni, która posłuży do wygen
 ```ebnf
 program : HAI separator statements KTHXBYE
         | HAI separator KTHXBYE
+        ;
 
 statements : statements statement
            | statement
+           ;
 
 statement : declaration separator
           | assignment separator
@@ -131,31 +133,39 @@ statement : declaration separator
           | expression separator
           | if_block separator
           | loop_block separator
+          ;
 
 separator : NEWLINE
           | separator NEWLINE
+          ;
 
-# Zmienne
+/* Zmienne */
 declaration : VAR_DEC ID
             | VAR_DEC ID ITZ expression
+            ;
 
 assignment : ID R expression
+           ;
 
-# Wejście / Wyjście
+/* Wejście / Wyjście */
 print : VISIBLE arg_list
+      ;
 
 arg_list : expression
          | arg_list expression
+         ;
 
 input : GIMMEH ID
+      ;
 
-# Wyrażenia
+/* Wyrażenia */
 expression : math_expr
            | bool_expr
            | comp_expr
            | ID
            | literal
            | SMOOSH arg_list
+           ;
 
 literal : NUMBR
         | NUMBAR
@@ -163,8 +173,9 @@ literal : NUMBR
         | TROOSH_WIN
         | TROOSH_FAIL
         | NOOB
+        ;
 
-# Operacje Matematyczne
+/* Operacje Matematyczne */
 math_expr : SUM expression AN expression
           | DIFF expression AN expression
           | PRODUKT expression AN expression
@@ -172,37 +183,47 @@ math_expr : SUM expression AN expression
           | MOD expression AN expression
           | BIGGR expression AN expression
           | SMALLR expression AN expression
+          ;
 
-# Operacje Logiczne
+/* Operacje Logiczne */
 bool_expr : BOTH_OF expression AN expression
           | EITHER_OF expression AN expression
           | WON_OF expression AN expression
           | NOT expression
           | ALL_OF arg_list MKAY
           | ANY_OF arg_list MKAY
+          ;
 
-# Porównania
+/* Porównania */
 comp_expr : BOTH_SAEM expression AN expression
           | DIFFRINT expression AN expression
+          ;
 
-# Sterowanie (IF/ELSE)
+/* Sterowanie (IF/ELSE) */
 if_block : IF separator THEN separator statements mebbe_blocks else_block END_BLOCK
+         ;
 
 mebbe_blocks : mebbe_blocks ELSE_IF expression separator statements
              | empty
+             ;
 
 else_block : ELSE separator statements
            | empty
+           ;
 
-# Pętle
+/* Pętle */
 loop_block : LOOP_START ID loop_op loop_cond separator statements LOOP_END ID
+           ;
 
 loop_op : UPPIN YR ID
         | NERFIN YR ID
         | empty
+        ;
 
 loop_cond : TIL expression
           | WILE expression
           | empty
+          ;
 
 empty :
+     ;
