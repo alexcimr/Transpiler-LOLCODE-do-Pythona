@@ -231,3 +231,143 @@ loop_cond : TIL expression
 
 empty :
      ;
+```
+## Gramatyka w notacji generatora parserów (PLY)
+Poniżej znajduje się specyfikacja gramatyki zapisana w formie docstringów wymaganych przez moduł ply.yacc
+```py
+def p_program(p):
+    """program : HAI separator statements KTHXBYE
+               | HAI separator KTHXBYE"""
+    pass
+
+def p_statements(p):
+    """statements : statements statement
+                  | statement"""
+    pass
+
+def p_statement(p):
+    """statement : declaration separator
+                 | assignment separator
+                 | print separator
+                 | input separator
+                 | expression separator
+                 | if_block separator
+                 | loop_block separator"""
+    pass
+
+def p_separator(p):
+    """separator : NEWLINE
+                 | separator NEWLINE"""
+    pass
+
+# Zmienne i Bukkit
+def p_declaration(p):
+    """declaration : VAR_DEC ID
+                   | VAR_DEC ID ITZ expression
+                   | VAR_DEC ID ITZ BUKKIT"""
+    pass
+
+def p_assignment(p):
+    """assignment : ID R expression
+                  | ID AT expression R expression"""
+    pass
+
+# Wejście / Wyjście
+def p_print(p):
+    """print : VISIBLE arg_list"""
+    pass
+
+def p_arg_list(p):
+    """arg_list : expression
+                | arg_list expression"""
+    pass
+
+def p_input(p):
+    """input : GIMMEH ID"""
+    pass
+
+# Wyrażenia
+def p_expression(p):
+    """expression : math_expr
+                  | bool_expr
+                  | comp_expr
+                  | ID
+                  | literal
+                  | SMOOSH arg_list"""
+    pass
+
+def p_literal(p):
+    """literal : NUMBR
+               | NUMBAR
+               | YARN
+               | TROOSH_WIN
+               | TROOSH_FAIL
+               | NOOB"""
+    pass
+
+# Operacje Matematyczne
+def p_math_expr(p):
+    """math_expr : SUM expression AN expression
+                 | DIFF expression AN expression
+                 | PRODUKT expression AN expression
+                 | QUOSHUNT expression AN expression
+                 | MOD expression AN expression
+                 | BIGGR expression AN expression
+                 | SMALLR expression AN expression"""
+    pass
+
+# Operacje Logiczne
+def p_bool_expr(p):
+    """bool_expr : BOTH_OF expression AN expression
+                 | EITHER_OF expression AN expression
+                 | WON_OF expression AN expression
+                 | NOT expression
+                 | ALL_OF arg_list MKAY
+                 | ANY_OF arg_list MKAY"""
+    pass
+
+# Porównania
+def p_comp_expr(p):
+    """comp_expr : BOTH_SAEM expression AN expression
+                 | DIFFRINT expression AN expression"""
+    pass
+
+# Sterowanie (IF/ELSE)
+def p_if_block(p):
+    """if_block : IF separator THEN separator statements mebbe_blocks else_block END_BLOCK"""
+    pass
+
+def p_mebbe_blocks(p):
+    """mebbe_blocks : mebbe_blocks ELSE_IF expression separator statements
+                    | empty"""
+    pass
+
+def p_else_block(p):
+    """else_block : ELSE separator statements
+                  | empty"""
+    pass
+
+# Pętle
+def p_loop_block(p):
+    """loop_block : LOOP_START ID loop_op loop_cond separator statements LOOP_END ID"""
+    pass
+
+def p_loop_op(p):
+    """loop_op : UPPIN YR ID
+               | NERFIN YR ID
+               | empty"""
+    pass
+
+def p_loop_cond(p):
+    """loop_cond : TIL expression
+                 | WILE expression
+                 | empty"""
+    pass
+
+def p_empty(p):
+    """empty :"""
+    pass
+
+def p_error(p):
+    pass
+```
