@@ -116,121 +116,91 @@ Skaner został zaimplementowany przy użyciu modułu `ply.lex`. Zgodnie z konwen
 | `t_MULTI_START`| `OBTW` | Rozpoczęcie komentarza wielolinijkowego |
 | `t_MULTI_END` | `TLDR` | Zakończenie komentarza wielolinijkowego |
 
-## Gramatyka Języka (Notacja Yacc)
-Poniżej znajduje się formalna specyfikacja składni, która posłuży do wygenerowania parsera.
-
+## Gramatyka w notacji standardowej (BNF)
+Poniżej znajduje się formalna specyfikacja składni zapisana w notacji BNF.
 ```ebnf
-program : HAI separator statements KTHXBYE
-        | HAI separator KTHXBYE
-        ;
+<program> ::= HAI <separator> <statements> KTHXBYE
+            | HAI <separator> KTHXBYE
 
-statements : statements statement
-           | statement
-           ;
+<statements> ::= <statements> <statement>
+               | <statement>
 
-statement : declaration separator
-          | assignment separator
-          | print separator
-          | input separator
-          | expression separator
-          | if_block separator
-          | loop_block separator
-          ;
+<statement> ::= <declaration> <separator>
+              | <assignment> <separator>
+              | <print> <separator>
+              | <input> <separator>
+              | <expression> <separator>
+              | <if_block> <separator>
+              | <loop_block> <separator>
 
-separator : NEWLINE
-          | separator NEWLINE
-          ;
+<separator> ::= NEWLINE
+              | <separator> NEWLINE
 
-/* Zmienne i Bukkit */
-declaration : VAR_DEC ID
-            | VAR_DEC ID ITZ expression
-            | VAR_DEC ID ITZ BUKKIT
-            ;
+<declaration> ::= VAR_DEC ID
+                | VAR_DEC ID ITZ <expression>
+                | VAR_DEC ID ITZ BUKKIT
 
-assignment : ID R expression
-           | ID AT expression R expression
-           ;
+<assignment> ::= ID R <expression>
+               | ID AT <expression> R <expression>
 
-/* Wejście / Wyjście */
-print : VISIBLE arg_list
-      ;
+<print> ::= VISIBLE <arg_list>
 
-arg_list : expression
-         | arg_list expression
-         ;
+<arg_list> ::= <expression>
+             | <arg_list> <expression>
 
-input : GIMMEH ID
-      ;
+<input> ::= GIMMEH ID
 
-/* Wyrażenia */
-expression : math_expr
-           | bool_expr
-           | comp_expr
-           | ID
-           | literal
-           | SMOOSH arg_list
-           ;
+<expression> ::= <math_expr>
+               | <bool_expr>
+               | <comp_expr>
+               | ID
+               | <literal>
+               | SMOOSH <arg_list>
 
-literal : NUMBR
-        | NUMBAR
-        | YARN
-        | TROOSH_WIN
-        | TROOSH_FAIL
-        | NOOB
-        ;
+<literal> ::= NUMBR
+            | NUMBAR
+            | YARN
+            | TROOSH_WIN
+            | TROOSH_FAIL
+            | NOOB
 
-/* Operacje Matematyczne */
-math_expr : SUM expression AN expression
-          | DIFF expression AN expression
-          | PRODUKT expression AN expression
-          | QUOSHUNT expression AN expression
-          | MOD expression AN expression
-          | BIGGR expression AN expression
-          | SMALLR expression AN expression
-          ;
+<math_expr> ::= SUM <expression> AN <expression>
+              | DIFF <expression> AN <expression>
+              | PRODUKT <expression> AN <expression>
+              | QUOSHUNT <expression> AN <expression>
+              | MOD <expression> AN <expression>
+              | BIGGR <expression> AN <expression>
+              | SMALLR <expression> AN <expression>
 
-/* Operacje Logiczne */
-bool_expr : BOTH_OF expression AN expression
-          | EITHER_OF expression AN expression
-          | WON_OF expression AN expression
-          | NOT expression
-          | ALL_OF arg_list MKAY
-          | ANY_OF arg_list MKAY
-          ;
+<bool_expr> ::= BOTH_OF <expression> AN <expression>
+              | EITHER_OF <expression> AN <expression>
+              | WON_OF <expression> AN <expression>
+              | NOT <expression>
+              | ALL_OF <arg_list> MKAY
+              | ANY_OF <arg_list> MKAY
 
-/* Porównania */
-comp_expr : BOTH_SAEM expression AN expression
-          | DIFFRINT expression AN expression
-          ;
+<comp_expr> ::= BOTH_SAEM <expression> AN <expression>
+              | DIFFRINT <expression> AN <expression>
 
-/* Sterowanie (IF/ELSE) */
-if_block : IF separator THEN separator statements mebbe_blocks else_block END_BLOCK
-         ;
+<if_block> ::= IF <separator> THEN <separator> <statements> <mebbe_blocks> <else_block> END_BLOCK
 
-mebbe_blocks : mebbe_blocks ELSE_IF expression separator statements
-             | empty
-             ;
+<mebbe_blocks> ::= <mebbe_blocks> ELSE_IF <expression> <separator> <statements>
+                 | <empty>
 
-else_block : ELSE separator statements
-           | empty
-           ;
+<else_block> ::= ELSE <separator> <statements>
+               | <empty>
 
-/* Pętle */
-loop_block : LOOP_START ID loop_op loop_cond separator statements LOOP_END ID
-           ;
+<loop_block> ::= LOOP_START ID <loop_op> <loop_cond> <separator> <statements> LOOP_END ID
 
-loop_op : UPPIN YR ID
-        | NERFIN YR ID
-        | empty
-        ;
+<loop_op> ::= UPPIN YR ID
+            | NERFIN YR ID
+            | <empty>
 
-loop_cond : TIL expression
-          | WILE expression
-          | empty
-          ;
+<loop_cond> ::= TIL <expression>
+              | WILE <expression>
+              | <empty>
 
-empty :
-     ;
+<empty> ::=
 ```
 ## Gramatyka w notacji generatora parserów (PLY)
 Poniżej znajduje się specyfikacja gramatyki zapisana w formie docstringów wymaganych przez moduł ply.yacc
