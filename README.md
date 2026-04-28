@@ -26,6 +26,8 @@ Wynikiem pracy narzędzia jest konwerter LOLCODE do Pythona. Aplikacja przyjmuje
 **Sposób realizacji skanera oraz parsera:**
 Analiza leksykalna (skaner) i składniowa (parser) zostanie wykonana przy użyciu biblioteki PLY, wykorzystując odpowiednio jej moduły Lex oraz Yacc.
 
+---
+
 ## Opis tokenów
 
 Skaner został zaimplementowany przy użyciu modułu `ply.lex`. Zgodnie z konwencją biblioteki, nazwy tokenów poprzedzone są przedrostkiem `t_`. Poniżej przedstawiono kompletną listę tokenów, ich wyrażenia regularne oraz ich znaczenie w specyfikacji LOLCODE.
@@ -116,92 +118,8 @@ Skaner został zaimplementowany przy użyciu modułu `ply.lex`. Zgodnie z konwen
 | `t_MULTI_START`| `OBTW` | Rozpoczęcie komentarza wielolinijkowego |
 | `t_MULTI_END` | `TLDR` | Zakończenie komentarza wielolinijkowego |
 
-## Gramatyka w notacji standardowej (BNF)
-Poniżej znajduje się formalna specyfikacja składni zapisana w notacji BNF.
-```ebnf
-<program> ::= HAI <separator> <statements> KTHXBYE
-            | HAI <separator> KTHXBYE
+---
 
-<statements> ::= <statements> <statement>
-               | <statement>
-
-<statement> ::= <declaration> <separator>
-              | <assignment> <separator>
-              | <print> <separator>
-              | <input> <separator>
-              | <expression> <separator>
-              | <if_block> <separator>
-              | <loop_block> <separator>
-
-<separator> ::= NEWLINE
-              | <separator> NEWLINE
-
-<declaration> ::= VAR_DEC ID
-                | VAR_DEC ID ITZ <expression>
-                | VAR_DEC ID ITZ BUKKIT
-
-<assignment> ::= ID R <expression>
-               | ID AT <expression> R <expression>
-
-<print> ::= VISIBLE <arg_list>
-
-<arg_list> ::= <expression>
-             | <arg_list> <expression>
-
-<input> ::= GIMMEH ID
-
-<expression> ::= <math_expr>
-               | <bool_expr>
-               | <comp_expr>
-               | ID
-               | <literal>
-               | SMOOSH <arg_list>
-
-<literal> ::= NUMBR
-            | NUMBAR
-            | YARN
-            | TROOSH_WIN
-            | TROOSH_FAIL
-            | NOOB
-
-<math_expr> ::= SUM <expression> AN <expression>
-              | DIFF <expression> AN <expression>
-              | PRODUKT <expression> AN <expression>
-              | QUOSHUNT <expression> AN <expression>
-              | MOD <expression> AN <expression>
-              | BIGGR <expression> AN <expression>
-              | SMALLR <expression> AN <expression>
-
-<bool_expr> ::= BOTH_OF <expression> AN <expression>
-              | EITHER_OF <expression> AN <expression>
-              | WON_OF <expression> AN <expression>
-              | NOT <expression>
-              | ALL_OF <arg_list> MKAY
-              | ANY_OF <arg_list> MKAY
-
-<comp_expr> ::= BOTH_SAEM <expression> AN <expression>
-              | DIFFRINT <expression> AN <expression>
-
-<if_block> ::= IF <separator> THEN <separator> <statements> <mebbe_blocks> <else_block> END_BLOCK
-
-<mebbe_blocks> ::= <mebbe_blocks> ELSE_IF <expression> <separator> <statements>
-                 | <empty>
-
-<else_block> ::= ELSE <separator> <statements>
-               | <empty>
-
-<loop_block> ::= LOOP_START ID <loop_op> <loop_cond> <separator> <statements> LOOP_END ID
-
-<loop_op> ::= UPPIN YR ID
-            | NERFIN YR ID
-            | <empty>
-
-<loop_cond> ::= TIL <expression>
-              | WILE <expression>
-              | <empty>
-
-<empty> ::=
-```
 ## Gramatyka w notacji generatora parserów (PLY)
 Poniżej znajduje się specyfikacja gramatyki zapisana w formie docstringów wymaganych przez moduł ply.yacc
 ```py
@@ -340,4 +258,50 @@ def p_empty(p):
 
 def p_error(p):
     pass
+```
+
+---
+
+## Generatory i Pakiety Zewnętrzne
+* **PLY (Python Lex-Yacc)** - biblioteka wykorzystana do analizy leksykalnej (`ply.lex`) i składniowej (`ply.yacc`).
+
+---
+
+## Struktura Projektu
+```text
+Transpiler-LOLCODE/
+├── lexer.py         # Wyrażenia regularne i tokeny (skaner)
+├── parser.py        # Gramatyka i logika translacji (parser)
+├── main.py          # Główny skrypt uruchamiający program
+├── test.lol         # Plik testowy z kodem LOLCODE
+└── README.md
+```
+
+---
+
+## Instrukcja obsługi
+1. Zainstaluj wymaganą bibliotekę:
+   ```bash
+   pip install ply
+   ```
+2. Swój kod w języku LOLCODE wklej do pliku `test.lol`.
+3. Uruchom proces transpilacji:
+   ```bash
+   python main.py
+   ```
+
+---
+
+## Przykład działania
+
+**Plik wejściowy (`test.lol`):**
+```text
+HAI
+VISIBLE "Hello World"
+KTHXBYE
+```
+
+**Wynik w konsoli (Python):**
+```python
+print("Hello World")
 ```
