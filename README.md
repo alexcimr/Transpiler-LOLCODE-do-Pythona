@@ -60,8 +60,8 @@ Skaner został zaimplementowany przy użyciu modułu `ply.lex`. Zgodnie z konwen
 | `t_NUMBR` | `[0-9]+` | Liczba całkowita (Integer) |
 | `t_NUMBAR` | `[0-9]+\.[0-9]+` | Liczba zmiennoprzecinkowa (Float) |
 | `t_YARN` | `"[^"]*"` | Ciąg znaków (String) |
-| `t_TROOSH_WIN`| `WIN` | Wartość logiczna Prawda (True) |
-| `t_TROOSH_FAIL`| `FAIL` | Wartość logiczna Fałsz (False) |
+| `t_WIN` | `WIN` | Wartość logiczna Prawda (True) |
+| `t_FAIL` | `FAIL` | Wartość logiczna Fałsz (False) |
 | `t_NOOB` | `NOOB` | Wartość pusta (None/Null) |
 | `t_ID` | `[a-zA-Z][a-zA-Z0-9_]*` | Identyfikator zmiennej lub etykiety |
 
@@ -75,7 +75,7 @@ Skaner został zaimplementowany przy użyciu modułu `ply.lex`. Zgodnie z konwen
 | `t_MOD` | `MOD OF` | Reszta z dzielenia (Modulo) |
 | `t_BIGGR` | `BIGGR OF` | Zwraca większą z dwóch liczb (Max) |
 | `t_SMALLR` | `SMALLR OF` | Zwraca mniejszą z dwóch liczb (Min) |
-| `t_AN` | `AN` | Separator argumentów (używany m.in. w matematyce) |
+| `t_AN` | `AN` | Separator argumentów |
 
 #### Operatory logiczne i porównania
 | Nazwa Tokena | Wyrażenie | Opis |
@@ -93,30 +93,31 @@ Skaner został zaimplementowany przy użyciu modułu `ply.lex`. Zgodnie z konwen
 #### Instrukcje warunkowe (If / Else)
 | Nazwa Tokena | Wyrażenie | Opis |
 | :--- | :--- | :--- |
-| `t_IF` | `O RLY\?` | Otwarcie bloku instrukcji warunkowej |
+| `t_IF` | `O RLY?` | Otwarcie bloku instrukcji warunkowej |
 | `t_THEN` | `YA RLY` | Blok wykonywany gdy warunek jest prawdziwy |
-| `t_ELSE_IF` | `MEBBE` | Blok "Else If" |
+| `t_MEBBE` | `MEBBE` | Blok "Else If" |
 | `t_ELSE` | `NO WAI` | Blok wykonywany gdy warunek jest fałszywy |
-| `t_END_BLOCK` | `OIC` | Zamknięcie bloku warunkowego |
+| `t_OIC` | `OIC` | Zamknięcie bloku warunkowego |
 
 #### Pętle
 | Nazwa Tokena | Wyrażenie | Opis |
 | :--- | :--- | :--- |
-| `t_LOOP_START`| `IM IN YR` | Otwarcie pętli z etykietą |
+| `t_LOOP_START` | `IM IN YR` | Otwarcie pętli z etykietą |
 | `t_UPPIN` | `UPPIN` | Inkrementacja w pętli |
 | `t_NERFIN` | `NERFIN` | Dekrementacja w pętli |
 | `t_YR` | `YR` | Słowo łączące przy deklaracji zmiennej w pętli |
 | `t_TIL` | `TIL` | Warunek końcowy "dopóki nie" (Until) |
 | `t_WILE` | `WILE` | Warunek trwania "dopóki" (While) |
 | `t_LOOP_END` | `IM OUTTA YR` | Zamknięcie pętli z etykietą |
+| `t_GTFO`        | `GTFO`      | Przerwanie pętli (break)
 
 #### Operacje na tekstach i komentarze
-| Nazwa Tokena | Wyrażenie | Opis |
-| :--- | :--- | :--- |
-| `t_SMOOSH` | `SMOOSH` | Konkatenacja ciągów znaków |
-| `t_COMMENT` | `BTW .*` | Komentarz jednolinijkowy (ignorowany) |
-| `t_MULTI_START`| `OBTW` | Rozpoczęcie komentarza wielolinijkowego |
-| `t_MULTI_END` | `TLDR` | Zakończenie komentarza wielolinijkowego |
+| Nazwa Tokena    | Wyrażenie | Opis |
+|:----------------|:----------| :--- |
+| `t_SMOOSH`      | `SMOOSH`  | Konkatenacja ciągów znaków |
+| `t_COMMENT`     | `BTW .*`  | Komentarz jednolinijkowy (ignorowany) |
+| `t_MULTI_START` | `OBTW`    | Rozpoczęcie komentarza wielolinijkowego |
+| `t_MULTI_END`   | `TLDR`    | Zakończenie komentarza wielolinijkowego |
 
 ---
 
@@ -140,7 +141,8 @@ def p_statement(p):
                  | input separator
                  | expression separator
                  | if_block separator
-                 | loop_block separator"""
+                 | loop_block separator
+                 | GTFO separator"""
     pass
 
 def p_separator(p):
@@ -188,8 +190,8 @@ def p_literal(p):
     """literal : NUMBR
                | NUMBAR
                | YARN
-               | TROOSH_WIN
-               | TROOSH_FAIL
+               | WIN
+               | FAIL
                | NOOB"""
     pass
 
@@ -222,11 +224,11 @@ def p_comp_expr(p):
 
 # Sterowanie (IF/ELSE)
 def p_if_block(p):
-    """if_block : IF separator THEN separator statements mebbe_blocks else_block END_BLOCK"""
+    """if_block : IF separator THEN separator statements mebbe_blocks else_block OIC"""
     pass
 
 def p_mebbe_blocks(p):
-    """mebbe_blocks : mebbe_blocks ELSE_IF expression separator statements
+    """mebbe_blocks : mebbe_blocks MEBBE expression separator statements
                     | empty"""
     pass
 
