@@ -296,14 +296,14 @@ Transpiler-LOLCODE/
 
 ## Przykład działania
 
-**Plik wejściowy (`test.lol`):**
+**Plik wejściowy (`.lol`):**
 ```text
 HAI
 VISIBLE "Hello World"
 KTHXBYE
 ```
 
-**Wynik w konsoli (Python):**
+**Wynik w konsoli (`.py`):**
 ```python
 print("Hello World")
 ```
