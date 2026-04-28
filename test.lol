@@ -1,5 +1,5 @@
 HAI
-BTW Prototyp dziala!
+BTW to jest komentarz
 I HAS A KOTY ITZ 5
 I HAS A PSY ITZ 3
 
