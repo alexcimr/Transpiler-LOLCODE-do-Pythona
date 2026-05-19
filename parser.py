@@ -1,32 +1,32 @@
 import ply.yacc as yacc
 from lexer import tokens
 
-
-def indent(code_block):
-    if not code_block:
-        return ""
-    return "\n".join("    " + line for line in code_block.split("\n") if line.strip())
+def indent(block):
+    if not block or not block.strip():
+        return "    pass"
+    return "\n".join("    " + line for line in block.split("\n") if line.strip())
 
 
 def p_program(p):
     """program : HAI separator statements KTHXBYE optional_separator
                | HAI separator KTHXBYE optional_separator"""
-    if len(p) >= 5 and p[3] != 'KTHXBYE':
+    if len(p) == 6:
         p[0] = p[3]
     else:
-        p[0] = ""
+        p[0] = "pass"
 
 
 def p_statements(p):
     """statements : statements statement
                   | statement"""
     if len(p) == 3:
+        prev = p[1] or ""
         if p[2] is not None:
-            p[0] = p[1] + "\n" + p[2]
+            p[0] = (prev + "\n" + p[2]).strip("\n")
         else:
-            p[0] = p[1]
+            p[0] = prev
     else:
-        p[0] = p[1] if p[1] else ""
+        p[0] = p[1] if p[1] is not None else ""
 
 
 def p_statement(p):
@@ -38,14 +38,16 @@ def p_statement(p):
                  | if_block separator
                  | loop_block separator
                  | gtfo separator
-                 | NEWLINE"""
-    if len(p) == 2:
+                 | NEWLINE
+                 | COMMENT separator"""
+    if p.slice[1].type == 'COMMENT':
+        p[0] = p[1]
+    elif len(p) == 2:
         p[0] = None
+    elif p.slice[1].type == 'expression':
+        p[0] = f"_IT = {p[1]}"
     else:
-        if p.slice[1].type == 'expression':
-            p[0] = f"_IT = {p[1]}"
-        else:
-            p[0] = p[1]
+        p[0] = p[1]
 
 
 def p_declaration(p):
@@ -55,7 +57,7 @@ def p_declaration(p):
     if len(p) == 3:
         p[0] = f"{p[2]} = None"
     elif p[4] == 'BUKKIT':
-        p[0] = f"{p[2]} = []"
+        p[0] = f"{p[2]} = {{}}"
     else:
         p[0] = f"{p[2]} = {p[4]}"
 
@@ -71,8 +73,11 @@ def p_assignment(p):
 
 def p_print(p):
     """print : VISIBLE arg_list"""
-    args = ", ".join(p[2])
-    p[0] = f"print({args})"
+    if len(p[2]) == 1:
+        p[0] = f"print({p[2][0]})"
+    else:
+        concat = " + ".join(f"str({a})" for a in p[2])
+        p[0] = f"print({concat})"
 
 
 def p_arg_list(p):
@@ -96,11 +101,11 @@ def p_expression(p):
                   | ID
                   | literal
                   | SMOOSH arg_list"""
-    if len(p) == 2:
-        p[0] = str(p[1])
+    if len(p) == 3:
+        concat = " + ".join(f"str({a})" for a in p[2])
+        p[0] = f"({concat})"
     else:
-        args = " + ".join([f"str({arg})" for arg in p[2]])
-        p[0] = args
+        p[0] = str(p[1])
 
 
 def p_literal(p):
@@ -110,20 +115,23 @@ def p_literal(p):
                | WIN
                | FAIL
                | NOOB"""
-    if isinstance(p[1], str) and p[1] not in ['True', 'False', 'None']:
-        if p.slice[1].type == 'YARN':
-            p[0] = f'"{p[1]}"'
-        elif p[1] == 'WIN':
-            p[0] = "True"
-        elif p[1] == 'FAIL':
-            p[0] = "False"
-        elif p[1] == 'NOOB':
-            p[0] = "None"
-        else:
-            p[0] = p[1]
+    token_type = p.slice[1].type
+    if token_type == 'YARN':
+        escaped = p[1].replace("\\", "\\\\").replace('"', '\\"')
+        p[0] = f'"{escaped}"'
+    elif token_type == 'WIN':
+        p[0] = "True"
+    elif token_type == 'FAIL':
+        p[0] = "False"
+    elif token_type == 'NOOB':
+        p[0] = "None"
     else:
-        p[0] = p[1]
+        p[0] = str(p[1])
 
+
+_MATH_OPS = {
+    'SUM': '+', 'DIFF': '-', 'PRODUKT': '*', 'QUOSHUNT': '/', 'MOD': '%'
+}
 
 def p_math_expr(p):
     """math_expr : SUM expression AN expression
@@ -133,21 +141,13 @@ def p_math_expr(p):
                  | MOD expression AN expression
                  | BIGGR expression AN expression
                  | SMALLR expression AN expression"""
-    op = p[1].split()[0]
-    if op == 'SUM':
-        p[0] = f"({p[2]} + {p[4]})"
-    elif op == 'DIFF':
-        p[0] = f"({p[2]} - {p[4]})"
-    elif op == 'PRODUKT':
-        p[0] = f"({p[2]} * {p[4]})"
-    elif op == 'QUOSHUNT':
-        p[0] = f"({p[2]} / {p[4]})"
-    elif op == 'MOD':
-        p[0] = f"({p[2]} % {p[4]})"
-    elif op == 'BIGGR':
+    keyword = p[1].split()[0]
+    if keyword == 'BIGGR':
         p[0] = f"max({p[2]}, {p[4]})"
-    elif op == 'SMALLR':
+    elif keyword == 'SMALLR':
         p[0] = f"min({p[2]}, {p[4]})"
+    else:
+        p[0] = f"({p[2]} {_MATH_OPS[keyword]} {p[4]})"
 
 
 def p_bool_expr(p):
@@ -157,42 +157,37 @@ def p_bool_expr(p):
                  | NOT expression
                  | ALL_OF arg_list MKAY
                  | ANY_OF arg_list MKAY"""
-    op = p[1].split()[0]
-    if op == 'BOTH':
+    keyword = p[1].split()[0]
+    if keyword == 'BOTH':
         p[0] = f"({p[2]} and {p[4]})"
-    elif op == 'EITHER':
+    elif keyword == 'EITHER':
         p[0] = f"({p[2]} or {p[4]})"
-    elif op == 'WON':
+    elif keyword == 'WON':
         p[0] = f"(bool({p[2]}) != bool({p[4]}))"
-    elif op == 'NOT':
+    elif keyword == 'NOT':
         p[0] = f"(not {p[2]})"
-    elif op == 'ALL':
-        args = ", ".join(p[2])
-        p[0] = f"all([{args}])"
-    elif op == 'ANY':
-        args = ", ".join(p[2])
-        p[0] = f"any([{args}])"
+    elif keyword == 'ALL':
+        p[0] = f"all([{', '.join(p[2])}])"
+    elif keyword == 'ANY':
+        p[0] = f"any([{', '.join(p[2])}])"
 
 
 def p_comp_expr(p):
     """comp_expr : BOTH_SAEM expression AN expression
                  | DIFFRINT expression AN expression"""
-    op = p[1].split()[0]
-    if op == 'BOTH':
+    if p[1].split()[0] == 'BOTH':
         p[0] = f"({p[2]} == {p[4]})"
-    elif op == 'DIFFRINT':
+    else:
         p[0] = f"({p[2]} != {p[4]})"
 
 
 def p_if_block(p):
     """if_block : IF separator THEN separator statements mebbe_blocks else_block OIC"""
-    code = "if _IT:\n"
-    code += indent(p[5])
+    code = "if _IT:\n" + indent(p[5])
     if p[6]:
         code += "\n" + p[6]
-    if p[7]:
-        code += "\nelse:\n"
-        code += indent(p[7])
+    if p[7] is not None:
+        code += "\nelse:\n" + indent(p[7])
     p[0] = code
 
 
@@ -200,8 +195,8 @@ def p_mebbe_blocks(p):
     """mebbe_blocks : mebbe_blocks MEBBE expression separator statements
                     | empty"""
     if len(p) == 6:
-        new_block = f"elif {p[3]}:\n{indent(p[5])}"
-        p[0] = f"{p[1]}\n{new_block}" if p[1] else new_block
+        new_elif = f"elif {p[3]}:\n{indent(p[5])}"
+        p[0] = (p[1] + "\n" + new_elif) if p[1] else new_elif
     else:
         p[0] = ""
 
@@ -209,22 +204,16 @@ def p_mebbe_blocks(p):
 def p_else_block(p):
     """else_block : ELSE separator statements
                   | empty"""
-    if len(p) == 4:
-        p[0] = p[3]
-    else:
-        p[0] = None
+    p[0] = p[3] if len(p) == 4 else None
 
 
 def p_loop_block(p):
     """loop_block : LOOP_START ID loop_op loop_cond separator statements LOOP_END ID"""
-    loop_var, op_code = p[3] if p[3] else (None, None)
     cond_code = p[4] if p[4] else "True"
-    body = p[6]
-
-    code = f"while {cond_code}:\n"
-    code += indent(body) + "\n"
-    if op_code:
-        code += indent(op_code)
+    code = f"while {cond_code}:\n" + indent(p[6])
+    if p[3]:
+        _, op_code = p[3]
+        code += "\n" + indent(op_code)
     p[0] = code
 
 
@@ -233,10 +222,7 @@ def p_loop_op(p):
                | NERFIN YR ID
                | empty"""
     if len(p) == 4:
-        if p[1] == 'UPPIN':
-            p[0] = (p[3], f"{p[3]} += 1")
-        else:
-            p[0] = (p[3], f"{p[3]} -= 1")
+        p[0] = (p[3], f"{p[3]} += 1") if p[1] == 'UPPIN' else (p[3], f"{p[3]} -= 1")
     else:
         p[0] = None
 
@@ -246,10 +232,7 @@ def p_loop_cond(p):
                  | WILE expression
                  | empty"""
     if len(p) == 3:
-        if p[1] == 'TIL':
-            p[0] = f"not ({p[2]})"
-        else:
-            p[0] = f"({p[2]})"
+        p[0] = f"not ({p[2]})" if p[1] == 'TIL' else f"({p[2]})"
     else:
         p[0] = None
 
@@ -273,7 +256,7 @@ def p_optional_separator(p):
 
 def p_empty(p):
     """empty :"""
-    pass
+    p[0] = None
 
 
 def p_error(p):

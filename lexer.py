@@ -3,7 +3,7 @@ import ply.lex as lex
 tokens = (
     'HAI', 'KTHXBYE', 'NEWLINE',
     'VAR_DEC', 'ITZ', 'R', 'BUKKIT', 'AT',
-    'VISIBLE', 'GIMMEH',
+    'VISIBLE', 'GIMMEH', 'COMMENT',
     'NUMBR', 'NUMBAR', 'YARN', 'WIN', 'FAIL', 'NOOB', 'ID',
     'SUM', 'DIFF', 'PRODUKT', 'QUOSHUNT', 'MOD', 'BIGGR', 'SMALLR', 'AN',
     'BOTH_SAEM', 'DIFFRINT',
@@ -23,8 +23,7 @@ keywords = {
     'MEBBE', 'OIC', 'DIFFRINT',
     'UPPIN', 'NERFIN', 'YR',
     'TIL', 'WILE',
-    'SMOOSH',
-    'GTFO'
+    'SMOOSH', 'GTFO'
 }
 
 def t_VAR_DEC(t):
@@ -103,6 +102,15 @@ def t_ELSE(t):
     r'NO\s+WAI'
     return t
 
+def t_MULTILINE_COMMENT(t):
+    r'OBTW[\s\S]*?TLDR'
+    t.lexer.lineno += t.value.count('\n')
+
+def t_COMMENT(t):
+    r'BTW[^\n]*'
+    t.value = '#' + t.value[3:]
+    return t
+
 def t_NUMBAR(t):
     r'[0-9]+\.[0-9]+'
     t.value = float(t.value)
@@ -128,20 +136,9 @@ def t_NEWLINE(t):
     t.lexer.lineno += t.value.count('\n')
     return t
 
-def t_MULTILINE_COMMENT(t):
-    r'OBTW(?s:.*?)TLDR'
-    t.lexer.lineno += t.value.count('\n')
-    pass
-
-def t_COMMENT(t):
-    r'BTW[^\n]*'
-    pass
-
 t_ignore = ' \t\r'
 
 def t_error(t):
-    raise SyntaxError(
-        f"Błąd leksykalny w linii {t.lineno}: {repr(t.value[0])}"
-    )
+    raise SyntaxError(f"Błąd leksykalny w linii {t.lexer.lineno}: nieznany znak {repr(t.value[0])}")
 
 lexer = lex.lex()
