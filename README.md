@@ -272,13 +272,12 @@ def p_error(p):
 ## Struktura Projektu
 ```text
 Transpiler-LOLCODE/
-├── lexer.py         # Wyrażenia regularne i tokeny (skaner)
-├── parser.py        # Gramatyka i logika translacji (parser)
-├── main.py          # Główny skrypt uruchamiający program
-├── test.lol         # Plik testowy z kodem LOLCODE
+├── gui.py
+├── lexer.py
+├── parser.py 
 └── README.md
 ```
-
+      
 ---
 
 ## Instrukcja obsługi

@@ -14,17 +14,18 @@ tokens = (
     'SMOOSH', 'GTFO'
 )
 
-# słowa kluczowe jednowyrazowe
 keywords = {
     'HAI', 'KTHXBYE',
-    'ITZ', 'R', 'BUKKIT', 'AT', 'VISIBLE', 'GIMMEH',
-    'WIN', 'FAIL', 'NOOB', 'AN', 'NOT', 'MKAY',
+    'ITZ', 'R', 'BUKKIT', 'AT',
+    'VISIBLE', 'GIMMEH',
+    'WIN', 'FAIL', 'NOOB',
+    'AN', 'NOT', 'MKAY',
     'MEBBE', 'OIC', 'DIFFRINT',
-    'UPPIN', 'NERFIN', 'YR', 'TIL', 'WILE', 'SMOOSH',
+    'UPPIN', 'NERFIN', 'YR',
+    'TIL', 'WILE',
+    'SMOOSH',
     'GTFO'
 }
-
-# tokeny wielowyrazowe
 
 def t_VAR_DEC(t):
     r'I\s+HAS\s+A'
@@ -123,23 +124,24 @@ def t_ID(t):
     return t
 
 def t_NEWLINE(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
+    r'\r?\n+'
+    t.lexer.lineno += t.value.count('\n')
     return t
+
+def t_MULTILINE_COMMENT(t):
+    r'OBTW(?s:.*?)TLDR'
+    t.lexer.lineno += t.value.count('\n')
+    pass
 
 def t_COMMENT(t):
     r'BTW[^\n]*'
     pass
 
-def t_MULTILINE_COMMENT(t):
-    r'OBTW[\s\S]*?TLDR'
-    t.lexer.lineno += t.value.count('\n')
-    pass
-
-t_ignore = ' \t'
+t_ignore = ' \t\r'
 
 def t_error(t):
-    print(f"Błąd leksykalny: nieznany znak '{t.value[0]}' w linii {t.lexer.lineno}")
-    t.lexer.skip(1)
+    raise SyntaxError(
+        f"Błąd leksykalny w linii {t.lineno}: {repr(t.value[0])}"
+    )
 
 lexer = lex.lex()
