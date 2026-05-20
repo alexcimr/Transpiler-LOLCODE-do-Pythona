@@ -232,7 +232,7 @@ def p_loop_cond(p):
                  | WILE expression
                  | empty"""
     if len(p) == 3:
-        p[0] = f"not ({p[2]})" if p[1] == 'TIL' else f"({p[2]})"
+        p[0] = f"not {p[2]}" if p[1] == 'TIL' else f"{p[2]}"
     else:
         p[0] = None
 
