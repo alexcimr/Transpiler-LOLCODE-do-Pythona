@@ -100,8 +100,11 @@ def p_expression(p):
                   | comp_expr
                   | ID
                   | literal
-                  | SMOOSH arg_list"""
-    if len(p) == 3:
+                  | SMOOSH arg_list
+                  | ID AT expression"""
+    if len(p) == 4 and p[2] == 'AT':
+        p[0] = f"{p[1]}[{p[3]}]"
+    elif len(p) == 3:
         concat = " + ".join(f"str({a})" for a in p[2])
         p[0] = f"({concat})"
     else:
