@@ -120,8 +120,7 @@ def p_literal(p):
                | NOOB"""
     token_type = p.slice[1].type
     if token_type == 'YARN':
-        escaped = p[1].replace("\\", "\\\\").replace('"', '\\"')
-        p[0] = f'"{escaped}"'
+        p[0] = f'"{p[1]}"'
     elif token_type == 'WIN':
         p[0] = "True"
     elif token_type == 'FAIL':
@@ -132,9 +131,7 @@ def p_literal(p):
         p[0] = str(p[1])
 
 
-MATH = {
-    'SUM': '+', 'DIFF': '-', 'PRODUKT': '*', 'QUOSHUNT': '/', 'MOD': '%'
-}
+MATH = {'SUM': '+', 'DIFF': '-', 'PRODUKT': '*', 'QUOSHUNT': '/', 'MOD': '%'}
 
 def p_math_expr(p):
     """math_expr : SUM expression AN expression
