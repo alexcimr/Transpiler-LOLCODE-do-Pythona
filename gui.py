@@ -17,6 +17,7 @@ VISIBLE "Zwierzeta lacznie:"
 VISIBLE RAZEM
 KTHXBYE"""
 
+# stan
 if "python_code" not in st.session_state:
     st.session_state.python_code = ""
 if "error" not in st.session_state:
@@ -24,10 +25,12 @@ if "error" not in st.session_state:
 
 col1, col2 = st.columns(2)
 
+# input lol
 with col1:
     st.subheader("Wejście (LOLCODE)")
     lol_code = st_ace(value=default_code, language="text", theme="tomorrow_night", height=300, show_gutter=True)
 
+# output py
 with col2:
     st.subheader("Wyjście (Python)")
     if st.session_state.error:
@@ -35,6 +38,7 @@ with col2:
     else:
         st_ace(value=st.session_state.python_code, language="python", theme="tomorrow_night", height=300, readonly=True, show_gutter=True)
 
+# transpiluj
 if st.button("Transpiluj", type="primary"):
     lexer.lineno = 1
     try:
@@ -48,6 +52,7 @@ if st.button("Transpiluj", type="primary"):
 st.divider()
 st.subheader("Terminal")
 
+# terminal
 if st.button("Uruchom przetłumaczony kod"):
     if st.session_state.python_code and not st.session_state.error:
         buf = io.StringIO()

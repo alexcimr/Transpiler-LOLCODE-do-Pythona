@@ -76,8 +76,8 @@ def p_print(p):
     if len(p[2]) == 1:
         p[0] = f"print({p[2][0]})"
     else:
-        concat = " + ".join(f"str({a})" for a in p[2])
-        p[0] = f"print({concat})"
+        txt = " + ".join(f"str({a})" for a in p[2])
+        p[0] = f"print({txt})"
 
 
 def p_arg_list(p):
@@ -129,7 +129,7 @@ def p_literal(p):
         p[0] = str(p[1])
 
 
-_MATH_OPS = {
+MATH = {
     'SUM': '+', 'DIFF': '-', 'PRODUKT': '*', 'QUOSHUNT': '/', 'MOD': '%'
 }
 
@@ -147,7 +147,7 @@ def p_math_expr(p):
     elif keyword == 'SMALLR':
         p[0] = f"min({p[2]}, {p[4]})"
     else:
-        p[0] = f"({p[2]} {_MATH_OPS[keyword]} {p[4]})"
+        p[0] = f"({p[2]} {MATH[keyword]} {p[4]})"
 
 
 def p_bool_expr(p):
@@ -209,11 +209,11 @@ def p_else_block(p):
 
 def p_loop_block(p):
     """loop_block : LOOP_START ID loop_op loop_cond separator statements LOOP_END ID"""
-    cond_code = p[4] if p[4] else "True"
-    code = f"while {cond_code}:\n" + indent(p[6])
+    condition_code = p[4] if p[4] else "True"
+    code = f"while {condition_code}:\n" + indent(p[6])
     if p[3]:
-        _, op_code = p[3]
-        code += "\n" + indent(op_code)
+        _, x = p[3]
+        code += "\n" + indent(x)
     p[0] = code
 
 
@@ -261,9 +261,7 @@ def p_empty(p):
 
 def p_error(p):
     if p:
-        raise SyntaxError(
-            f"Błąd składniowy w linii {p.lineno}"
-        )
+        raise SyntaxError(f"Błąd składniowy w linii {p.lineno}")
     else:
         raise SyntaxError("Błąd składniowy: koniec pliku")
 
